@@ -15,5 +15,7 @@ android.icon = assets/logo.png
 # OR explicitly include the folder:
 android.add_assets = assets
 
+android.accept_sdk_license = True
+
 [buildozer]
 log_level = 2
