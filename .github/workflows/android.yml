@@ -2,42 +2,59 @@ name: Build APK
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y zip unzip openjdk-11-jdk wget git build-essential \
-          libssl-dev libffi-dev python3-dev zlib1g-dev libstdc++6 cmake
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y zip unzip openjdk-11-jdk wget git build-essential \
+            libssl-dev libffi-dev python3-dev zlib1g-dev libncurses-dev libstdc++6 cmake
 
-    - name: Install Python packages
-      run: |
-        python -m pip install --upgrade pip
-        pip install cython buildozer
+          python -m pip install --upgrade pip
+          pip install cython buildozer
 
-    - name: Accept Android SDK licenses
-      run: yes | sdkmanager --licenses
+      - name: Install Android SDK Command Line Tools
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip
+          mv cmdline-tools latest
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
-    - name: Build APK
-      run: buildozer android debug
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: BabyWardrobe-APK
-        path: bin/*.apk
+      - name: Install Android SDK Build Tools & Platform
+        run: |
+          sdkmanager "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+
+      - name: Build APK
+        run: |
+          if ! grep -q "source.dir" buildozer.spec; then
+            echo "source.dir = ." >> buildozer.spec
+          fi
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: baby-wardrobe-apk
+          path: bin/*.apk
