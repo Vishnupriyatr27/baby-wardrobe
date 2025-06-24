@@ -20,7 +20,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y zip unzip openjdk-11-jdk wget git build-essential \
-          libssl-dev libffi-dev python3-dev zlib1g-dev libncurses5 libstdc++6 cmake
+          libssl-dev libffi-dev python3-dev zlib1g-dev libncurses-dev libstdc++6 cmake
         python -m pip install --upgrade pip
         pip install cython buildozer
 
