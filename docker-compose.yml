@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  babywardrobe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: babywardrobe-apk
+    container_name: babywardrobe_builder
+    volumes:
+      - ./bin:/home/builduser/app/bin
+    stdin_open: true
+    tty: true
