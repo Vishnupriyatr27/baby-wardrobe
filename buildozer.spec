@@ -1,4 +1,5 @@
 [app]
+source.dir = .
 title = Baby Wardrobe
 package.name = babywardrobe
 package.domain = org.vishnupriyatr
